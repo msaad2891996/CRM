@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace CRM.DAL.DesignPattern
 {
-    public class Repository<T>:IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         readonly CRMDBContext _dbContext;
         readonly DbSet<T> _dbSet;
         public Repository(CRMDBContext dbContext)
         {
             _dbContext = dbContext;
-            _dbSet=dbContext.Set<T>();
+            _dbSet = dbContext.Set<T>();
         }
         public bool Add(T entity)
         {
@@ -27,11 +27,24 @@ namespace CRM.DAL.DesignPattern
         }
 
 
+        public bool Edit(T entity)
+        {
+            _dbContext.Entry<T>(entity).State = EntityState.Modified;
+
+            return SaveChange();
+        }
+
+        public T GetById(int id)
+        {
+            return _dbSet.Find(id);
+        }
+
+
         private bool SaveChange()
         {
             try
             {
-                return _dbContext.SaveChanges()>0;
+                return _dbContext.SaveChanges() > 0;
             }
             catch (Exception ex)
             {

@@ -9,5 +9,8 @@ namespace CRM.DAL.DesignPattern
     public interface IRepository<T> where T : class
     {
         public bool Add(T entity);
+        public T GetById(int id);
+
+        public bool Edit(T entity);
     }
 }

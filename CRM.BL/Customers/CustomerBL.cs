@@ -86,5 +86,37 @@ namespace CRM.BL.Customers
             return response;
         }
 
+
+        public ResponseDTO EditCustomerStatus(int customerId, bool isActive)
+        {
+
+            ResponseDTO response = new ResponseDTO();
+            try
+            {
+
+                var entity = _RepCustomer.GetById(customerId);
+
+                entity.IsActive = isActive;
+
+                var action = _RepCustomer.Edit(entity);
+
+                response.Message = action ? "Customer Active Status updated Successfully" : "Error occur";
+                response.IsSuccess = action;
+                response.StatusCode = action ? 200 : 400;
+            }
+            catch (Exception ex)
+            {
+
+                response.Message = "Error occur";
+                response.IsSuccess = false;
+                response.StatusCode = 400;
+
+                throw;
+            }
+
+
+            return response;
+        }
+
     }
 }
