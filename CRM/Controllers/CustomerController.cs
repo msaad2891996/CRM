@@ -27,5 +27,14 @@ namespace CRM.Controllers
         {
             return Ok(_customerBL.EditCustomerStatus(customerId, isActive));
         }
+        [HttpGet]
+        public IActionResult Get() => Ok(_customerBL.GetAll());
+        [HttpGet]
+        public IActionResult GetCustomerById(int Id)=>Ok(_customerBL.GetCustomerById(Id));
+        [HttpPost]
+        public IActionResult EditCustomer([FromBody]EditCustomerDto customerDTO)
+        {
+            return Ok(_customerBL.EidtCustomer(customerDTO));
+        }
     }
 }

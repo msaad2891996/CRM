@@ -6,7 +6,7 @@ using CRM.Core;
 using CRM.Core.DTOs;
 using CRM.Core.Entities;
 using CRM.DAL.DesignPattern;
-
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +18,14 @@ namespace CRM.BL.Customers
     public class CustomerBL
     {
         readonly IRepository<Customer> _RepCustomer;
+        readonly IRepository<CustomerAddress> _RepCustomerAddress;
         readonly IMapper _mapper;
-        public CustomerBL(IRepository<Customer> RepCustomer, IMapper mapper)
+        public CustomerBL(IRepository<Customer> RepCustomer, IMapper mapper, 
+            IRepository<CustomerAddress> repCustomerAddress)
         {
             _RepCustomer = RepCustomer;
             _mapper = mapper;
+            _RepCustomerAddress = repCustomerAddress;
         }
 
 
@@ -55,22 +58,56 @@ namespace CRM.BL.Customers
 
             return response;
         }
-        public ResponseDTO EidtCustomer(CustomerDTO customerDTO)
+        public ResponseDTO EidtCustomer(EditCustomerDto mdl)
         {
 
             ResponseDTO response = new ResponseDTO();
             try
             {
-               // var customer=_RepCustomer.
+                var customer = _RepCustomer.GetByIdDetched(mdl.Id);
+                if (customer is not null)
+                {
 
-                var customerObj = _mapper.Map<Customer>(customerDTO);
+                    var customerObj = _mapper.Map<Customer>(mdl);
+                    var action = _RepCustomer.Edit(customerObj);
+                    var customersAddress = _RepCustomerAddress.GetAll().
+                                                               Where(x => x.CustomerId == mdl.Id).ToList();
+                    if (customersAddress is not null)
+                    {
+                        _RepCustomerAddress.DeleteRangeWithoutSaveChange(customersAddress);
+                        List<CustomerAddress> customersAdrress = new List<CustomerAddress>();
+                        #region OLD_WAY
+                        //foreach (var address in mdl.CustomerAddresses)
+                        //{
+                        //    var obj = new CustomerAddress()
+                        //    {
+                        //        AddedDate = DateTime.Now,
+                        //        AddressLine1 = address.AddressLine1,
+                        //        AddressLine2 = address.AddressLine2,
+                        //        IsBillingAddress = true,
+                        //        IsShippingAddress = true,
+                        //        ModifiedDate = DateTime.Now,
+                        //        PostalCode = address.PostalCode,
+                        //        State = address.State,
+                        //        CustomerId = customerObj.ID,
+                        //    };
+                        //    customers.Add(obj);
+                        //} 
+                        #endregion
 
-                var action = _RepCustomer.Add(customerObj);
-
-
-                response.Message = action ? "Customer Added Successfully" : "Error occur";
-                response.IsSuccess = action;
-                response.StatusCode = action ? 200 : 400;
+                        if (mdl.CustomerAddresses is not null)
+                        {
+                            customersAdrress = _mapper.Map<List<CustomerAddress>>(mdl.CustomerAddresses);
+                        }
+                        if (action)
+                        {
+                            _RepCustomerAddress.AddRange(customersAdrress);
+                            response.Message = action ? "Customer Added Successfully" : "Error occur";
+                            response.IsSuccess = action;
+                            response.StatusCode = action ? 200 : 400;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -86,6 +123,20 @@ namespace CRM.BL.Customers
             return response;
         }
 
+        public CustomerDTO GetCustomerById(int Id)
+        {
+            var entity = _RepCustomer.GetAll()
+                                   .Include(x => x.CustomerAddresses)
+                                   .Where(xx => xx.ID == Id)
+                                   .FirstOrDefault();
+            return _mapper.Map<CustomerDTO>(entity);
+        }
+
+        public List<CustomerDTO> GetAll()
+        {
+            var data = _RepCustomer.GetAll().ToList();
+            return _mapper.Map<List<CustomerDTO>>(data);
+        }
 
         public ResponseDTO EditCustomerStatus(int customerId, bool isActive)
         {

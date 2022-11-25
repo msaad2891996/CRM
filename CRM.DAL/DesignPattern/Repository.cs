@@ -26,6 +26,27 @@ namespace CRM.DAL.DesignPattern
             return SaveChange();
         }
 
+        public bool AddRange(List<T> entity)
+        {
+           _dbSet.AddRange(entity);
+            return SaveChange();
+        }
+
+        public bool Delete(T entity)
+        {
+           _dbSet.Remove(entity);
+            return SaveChange();
+        }
+
+        public bool DeleteRange(List<T> entity)
+        {
+           _dbSet.RemoveRange(entity);
+            return SaveChange();
+        }
+        public void DeleteRangeWithoutSaveChange(List<T> entity)
+        {
+            _dbSet.RemoveRange(entity);
+        }
 
         public bool Edit(T entity)
         {
@@ -34,9 +55,27 @@ namespace CRM.DAL.DesignPattern
             return SaveChange();
         }
 
+        public IQueryable<T> GetAll()
+        {
+            return _dbSet.AsQueryable();
+        }
+        public IQueryable<T> GetAllAsNoTracking()
+        {
+            return _dbSet.AsNoTracking();
+        }
+        
         public T GetById(int id)
         {
             return _dbSet.Find(id);
+        }
+
+
+        public T GetByIdDetched(int id)
+        {
+            var entity= _dbSet.Find(id);
+            _dbContext.Entry<T>(entity).State = EntityState.Detached;
+            return entity;
+
         }
 
 
