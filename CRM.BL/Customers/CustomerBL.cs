@@ -55,6 +55,36 @@ namespace CRM.BL.Customers
 
             return response;
         }
+        public ResponseDTO EidtCustomer(CustomerDTO customerDTO)
+        {
+
+            ResponseDTO response = new ResponseDTO();
+            try
+            {
+               // var customer=_RepCustomer.
+
+                var customerObj = _mapper.Map<Customer>(customerDTO);
+
+                var action = _RepCustomer.Add(customerObj);
+
+
+                response.Message = action ? "Customer Added Successfully" : "Error occur";
+                response.IsSuccess = action;
+                response.StatusCode = action ? 200 : 400;
+            }
+            catch (Exception ex)
+            {
+
+                response.Message = "Error occur";
+                response.IsSuccess = false;
+                response.StatusCode = 400;
+
+                throw;
+            }
+
+
+            return response;
+        }
 
     }
 }

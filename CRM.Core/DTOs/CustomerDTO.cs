@@ -22,6 +22,12 @@ namespace CRM.Core.DTOs
 
     }
 
+    public class EditCustomerDto:CustomerDTO
+    {
+        public int Id { get; set; }
+    }
+
+
     public class CustomerAddressDTO
     {
         public string AddressLine1 { get; set; }
