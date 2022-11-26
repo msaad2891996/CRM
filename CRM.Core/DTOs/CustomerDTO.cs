@@ -30,7 +30,7 @@ namespace CRM.Core.DTOs
 
     public class CustomerAddressDTO
     {
-        public int Id { get; set; }
+        public int CustomerId { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
 

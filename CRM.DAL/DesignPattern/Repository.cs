@@ -31,11 +31,19 @@ namespace CRM.DAL.DesignPattern
            _dbSet.AddRange(entity);
             return SaveChange();
         }
+        public void AddRangeWithoutSaveChanges(List<T> entity)
+        {
+            _dbSet.AddRange(entity);
+        }
 
         public bool Delete(T entity)
         {
            _dbSet.Remove(entity);
             return SaveChange();
+        }
+        public void DeleteWithoutSaveChanges(T entity)
+        {
+            _dbSet.Remove(entity);
         }
 
         public bool DeleteRange(List<T> entity)

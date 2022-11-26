@@ -20,7 +20,7 @@ namespace CRM.BL.Customers
         readonly IRepository<Customer> _RepCustomer;
         readonly IRepository<CustomerAddress> _RepCustomerAddress;
         readonly IMapper _mapper;
-        public CustomerBL(IRepository<Customer> RepCustomer, IMapper mapper, 
+        public CustomerBL(IRepository<Customer> RepCustomer, IMapper mapper,
             IRepository<CustomerAddress> repCustomerAddress)
         {
             _RepCustomer = RepCustomer;
@@ -68,14 +68,18 @@ namespace CRM.BL.Customers
                 if (customer is not null)
                 {
 
-                    var customerObj = _mapper.Map<Customer>(mdl);
-                    var action = _RepCustomer.Edit(customerObj);
+                      var customerObj = _mapper.Map<Customer>(mdl);
+                    //customer.FirstName = mdl.FirstName;
+                    //customer.LastName = mdl.LastName;
+                    //customer.Email = mdl.Email;
+                    //customer.Phone = mdl.Phone;
+                    //customer.ModifiedDate = DateTime.Now;
                     var customersAddress = _RepCustomerAddress.GetAll().
                                                                Where(x => x.CustomerId == mdl.Id).ToList();
                     if (customersAddress is not null)
                     {
                         _RepCustomerAddress.DeleteRangeWithoutSaveChange(customersAddress);
-                        List<CustomerAddress> customersAdrress = new List<CustomerAddress>();
+                          List<CustomerAddress> customersAdrress = new List<CustomerAddress>();
                         #region OLD_WAY
                         //foreach (var address in mdl.CustomerAddresses)
                         //{
@@ -95,13 +99,28 @@ namespace CRM.BL.Customers
                         //} 
                         #endregion
 
+
                         if (mdl.CustomerAddresses is not null)
                         {
                             customersAdrress = _mapper.Map<List<CustomerAddress>>(mdl.CustomerAddresses);
+                            _RepCustomerAddress.DeleteRangeWithoutSaveChange(customersAddress);
+                            //var CustomerAddresses = mdl.CustomerAddresses.Select(x => new CustomerAddress()
+                            //{
+                            //    AddressLine1 = x.AddressLine1,
+                            //    AddressLine2 = x.AddressLine2,
+                            //    IsBillingAddress = x.IsBillingAddress,
+                            //    IsShippingAddress = x.IsShippingAddress,
+                            //    PostalCode = x.PostalCode,
+                            //    State = x.State,
+                            //    CustomerId = customer.ID,
+                            //}).ToList();
+                           // customer.CustomerAddresses = CustomerAddresses;
+                          //  _RepCustomerAddress.AddRangeWithoutSaveChanges(CustomerAddresses);
                         }
+                        var action = _RepCustomer.Edit(customer);
                         if (action)
                         {
-                            _RepCustomerAddress.AddRange(customersAdrress);
+                            //   _RepCustomerAddress.AddRange(customersAdrress);
                             response.Message = action ? "Customer Added Successfully" : "Error occur";
                             response.IsSuccess = action;
                             response.StatusCode = action ? 200 : 400;
